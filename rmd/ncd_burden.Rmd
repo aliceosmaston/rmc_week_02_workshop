@@ -14,16 +14,35 @@ data_ncd <- read_csv(here("data", "burden-of-disease-ncd.csv"))
 # Here render a table for the DALY burden over time for the three countries 
 # You should pivot the data to show each country in a separate column.
 # Use kable() from the knitr package to render the table.
+concise_data_ncd <- data_ncd %>%
+  rename(DALYs = "DALYs (Disability-Adjusted Life Years) - Non-communicable diseases - Sex: Both - Age: Age-standardized (Rate)")
+
+
+subset_wider <- concise_data_ncd %>%
+  filter(Entity %in% c("Mali", "England", "Maldives")) %>% 
+  pivot_wider(names_from = Entity,
+              values_from = DALYs, id_cols = Year)
+kable(subset_wider)
 ```
 
 ## Plot Showing Trends in NCD Burden Over Time 
 
 ```{r}
 # Here, plot a line graph showing the trend of DALY burden for the chosen countries over time. You can use ggplot2 to create this plot. Each country's line should be a different color.
+selected_countries <- concise_data_ncd %>% 
+  filter(Entity %in% c("Mali", "England", "Maldives"))
+
+DALYs_trend_line <- ggplot(data = selected_countries,
+                          aes(x= Year, y = DALYs, group = Entity, color = Entity)) +
+  geom_line() +
+  labs(title = "NCD Burden over time in selected countries",
+       x = "Year",
+       y = "DALYs lost") +
+  theme_minimal()
+DALYs_trend_line
 ```
 
 ## Summary of NCD Burden Findings
 
-Provide a brief analysis based on the data presented in the table and chart. Highlight any significant findings or patterns. About 3 sentences.
-
+NCD burden changed the most dramatically in the Maldives where it halved during the period of 30 years. DALYs lost in England and Mali shared a similar trend in reduction but with Mali having more a higher burden.
 

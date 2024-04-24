@@ -2,7 +2,7 @@
 
 ```{r}
 # Load necessary packages
-pacman::p_load(tidyverse, knitr, here)
+pacman::p_load(tidyverse, dplyr, knitr, here)
 
 # Import the communicable diseases data
 data_cmnn <- read_csv(here("data", "burden-of-disease-cmnn.csv"))
@@ -14,16 +14,36 @@ data_cmnn <- read_csv(here("data", "burden-of-disease-cmnn.csv"))
 # Here render a table for the DALY burden over time for the three countries 
 # You should pivot the data to show each country in a separate column.
 # Use kable() from the knitr package to render the table.
+
+concise_data_cmnn <- data_cmnn %>%
+  rename(DALYs = "DALYs (Disability-Adjusted Life Years) - Communicable, maternal, neonatal, and nutritional diseases - Sex: Both - Age: Age-standardized (Rate)")
+
+
+subset_wider <- concise_data_cmnn %>%
+  filter(Entity %in% c("Mali", "England", "Maldives")) %>% 
+  pivot_wider(names_from = Entity,
+              values_from = DALYs, id_cols = Year)
+kable(subset_wider)
 ```
 
 ## Plot Showing Trends in CMNN Burden Over Time
 
 ```{r}
 # Here, plot a line graph showing the trend of DALY burden for the chosen countries over time. You can use ggplot2 to create this plot. Each country's line should be a different color.
+selected_countries <- concise_data_cmnn %>% 
+  filter(Entity %in% c("Mali", "England", "Maldives"))
+
+DALYs_trend_line <- ggplot(data = selected_countries,
+                          aes(x= Year, y = DALYs, group = Entity, color = Entity)) +
+  geom_line() +
+  labs(title = "Trend of CMNN over time in selected countries",
+       x = "Year",
+       y = "DALYs lost") +
+  theme_minimal()
+DALYs_trend_line
 ```
 
 ## Summary of CMNN Burden Findings
 
-Provide a brief analysis based on the data presented in the table and chart. Highlight any significant findings or patterns. About 3 sentences.
-
+Over the 30-year period shown above, the number of DALYs lost decreased in all countries with Mali showing the biggest change however it still has the higest number of DALYs lost. In England there has been a minor decrease. In the Maldives the number of DALYs lost fell fastest between 1990-2005 and has remained fairly stable since then.
 
